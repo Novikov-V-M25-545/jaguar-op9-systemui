@@ -1,0 +1,476 @@
+package com.android.systemui.statusbar.phone;
+
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Region;
+import android.util.Pools;
+import androidx.collection.ArraySet;
+import com.android.internal.annotations.VisibleForTesting;
+import com.android.systemui.Dumpable;
+import com.android.systemui.R;
+import com.android.systemui.plugins.statusbar.StatusBarStateController;
+import com.android.systemui.statusbar.AlertingNotificationManager;
+import com.android.systemui.statusbar.notification.VisualStabilityManager;
+import com.android.systemui.statusbar.notification.collection.NotificationEntry;
+import com.android.systemui.statusbar.notification.row.ExpandableNotificationRow;
+import com.android.systemui.statusbar.policy.ConfigurationController;
+import com.android.systemui.statusbar.policy.HeadsUpManager;
+import com.android.systemui.statusbar.policy.OnHeadsUpChangedListener;
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Stack;
+
+/* loaded from: classes.dex */
+public class HeadsUpManagerPhone extends HeadsUpManager implements Dumpable, VisualStabilityManager.Callback, OnHeadsUpChangedListener {
+    private AnimationStateHandler mAnimationStateHandler;
+    private final int mAutoHeadsUpNotificationDecay;
+    private final KeyguardBypassController mBypassController;
+    private HashSet<NotificationEntry> mEntriesToRemoveAfterExpand;
+    private ArraySet<NotificationEntry> mEntriesToRemoveWhenReorderingAllowed;
+    private final Pools.Pool<HeadsUpEntryPhone> mEntryPool;
+
+    @VisibleForTesting
+    final int mExtensionTime;
+    private final NotificationGroupManager mGroupManager;
+    private boolean mHeadsUpGoingAway;
+    private int mHeadsUpInset;
+    private final List<OnHeadsUpPhoneListenerChange> mHeadsUpPhoneListeners;
+    private boolean mIsExpanded;
+    private HashSet<String> mKeysToRemoveWhenLeavingKeyguard;
+    private boolean mReleaseOnExpandFinish;
+    private int mStatusBarState;
+    private final StatusBarStateController.StateListener mStatusBarStateListener;
+    private HashSet<String> mSwipedOutKeys;
+    private final Region mTouchableRegion;
+    private boolean mTrackingHeadsUp;
+    private VisualStabilityManager mVisualStabilityManager;
+
+    public interface AnimationStateHandler {
+        void setHeadsUpGoingAwayAnimationsAllowed(boolean z);
+    }
+
+    public interface OnHeadsUpPhoneListenerChange {
+        void onHeadsUpGoingAwayStateChanged(boolean z);
+    }
+
+    public HeadsUpManagerPhone(Context context, StatusBarStateController statusBarStateController, KeyguardBypassController keyguardBypassController, NotificationGroupManager notificationGroupManager, ConfigurationController configurationController) {
+        super(context);
+        this.mHeadsUpPhoneListeners = new ArrayList();
+        this.mSwipedOutKeys = new HashSet<>();
+        this.mEntriesToRemoveAfterExpand = new HashSet<>();
+        this.mKeysToRemoveWhenLeavingKeyguard = new HashSet<>();
+        this.mEntriesToRemoveWhenReorderingAllowed = new ArraySet<>();
+        this.mTouchableRegion = new Region();
+        this.mEntryPool = new Pools.Pool<HeadsUpEntryPhone>() { // from class: com.android.systemui.statusbar.phone.HeadsUpManagerPhone.1
+            private Stack<HeadsUpEntryPhone> mPoolObjects = new Stack<>();
+
+            /* renamed from: acquire, reason: merged with bridge method [inline-methods] */
+            public HeadsUpEntryPhone m292acquire() {
+                if (!this.mPoolObjects.isEmpty()) {
+                    return this.mPoolObjects.pop();
+                }
+                return HeadsUpManagerPhone.this.new HeadsUpEntryPhone();
+            }
+
+            public boolean release(HeadsUpEntryPhone headsUpEntryPhone) {
+                this.mPoolObjects.push(headsUpEntryPhone);
+                return true;
+            }
+        };
+        StatusBarStateController.StateListener stateListener = new StatusBarStateController.StateListener() { // from class: com.android.systemui.statusbar.phone.HeadsUpManagerPhone.3
+            @Override // com.android.systemui.plugins.statusbar.StatusBarStateController.StateListener
+            public void onStateChanged(int i) {
+                boolean z = HeadsUpManagerPhone.this.mStatusBarState == 1;
+                boolean z2 = i == 1;
+                HeadsUpManagerPhone.this.mStatusBarState = i;
+                if (z && !z2 && HeadsUpManagerPhone.this.mKeysToRemoveWhenLeavingKeyguard.size() != 0) {
+                    for (String str : (String[]) HeadsUpManagerPhone.this.mKeysToRemoveWhenLeavingKeyguard.toArray(new String[0])) {
+                        HeadsUpManagerPhone.this.removeAlertEntry(str);
+                    }
+                    HeadsUpManagerPhone.this.mKeysToRemoveWhenLeavingKeyguard.clear();
+                }
+                if (z && !z2 && HeadsUpManagerPhone.this.mBypassController.getBypassEnabled()) {
+                    ArrayList arrayList = new ArrayList();
+                    for (AlertingNotificationManager.AlertEntry alertEntry : ((AlertingNotificationManager) HeadsUpManagerPhone.this).mAlertEntries.values()) {
+                        NotificationEntry notificationEntry = alertEntry.mEntry;
+                        if (notificationEntry != null && notificationEntry.isBubble() && !alertEntry.isSticky()) {
+                            arrayList.add(alertEntry.mEntry.getKey());
+                        }
+                    }
+                    Iterator it = arrayList.iterator();
+                    while (it.hasNext()) {
+                        HeadsUpManagerPhone.this.removeAlertEntry((String) it.next());
+                    }
+                }
+            }
+
+            @Override // com.android.systemui.plugins.statusbar.StatusBarStateController.StateListener
+            public void onDozingChanged(boolean z) {
+                if (z) {
+                    return;
+                }
+                Iterator it = ((AlertingNotificationManager) HeadsUpManagerPhone.this).mAlertEntries.values().iterator();
+                while (it.hasNext()) {
+                    ((AlertingNotificationManager.AlertEntry) it.next()).updateEntry(true);
+                }
+            }
+        };
+        this.mStatusBarStateListener = stateListener;
+        Resources resources = this.mContext.getResources();
+        this.mExtensionTime = resources.getInteger(R.integer.ambient_notification_extension_time);
+        this.mAutoHeadsUpNotificationDecay = resources.getInteger(R.integer.auto_heads_up_notification_decay);
+        statusBarStateController.addCallback(stateListener);
+        this.mBypassController = keyguardBypassController;
+        this.mGroupManager = notificationGroupManager;
+        updateResources();
+        configurationController.addCallback(new ConfigurationController.ConfigurationListener() { // from class: com.android.systemui.statusbar.phone.HeadsUpManagerPhone.2
+            @Override // com.android.systemui.statusbar.policy.ConfigurationController.ConfigurationListener
+            public void onDensityOrFontScaleChanged() {
+                HeadsUpManagerPhone.this.updateResources();
+            }
+
+            @Override // com.android.systemui.statusbar.policy.ConfigurationController.ConfigurationListener
+            public void onOverlayChanged() {
+                HeadsUpManagerPhone.this.updateResources();
+            }
+        });
+    }
+
+    void setup(VisualStabilityManager visualStabilityManager) {
+        this.mVisualStabilityManager = visualStabilityManager;
+    }
+
+    public void setAnimationStateHandler(AnimationStateHandler animationStateHandler) {
+        this.mAnimationStateHandler = animationStateHandler;
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public void updateResources() {
+        Resources resources = this.mContext.getResources();
+        this.mHeadsUpInset = resources.getDimensionPixelSize(android.R.dimen.notification_custom_view_max_image_height) + resources.getDimensionPixelSize(R.dimen.heads_up_status_bar_padding);
+    }
+
+    void addHeadsUpPhoneListener(OnHeadsUpPhoneListenerChange onHeadsUpPhoneListenerChange) {
+        this.mHeadsUpPhoneListeners.add(onHeadsUpPhoneListenerChange);
+    }
+
+    Region getTouchableRegion() {
+        NotificationEntry groupSummary;
+        NotificationEntry topEntry = getTopEntry();
+        if (!hasPinnedHeadsUp() || topEntry == null) {
+            return null;
+        }
+        if (topEntry.isChildInGroup() && (groupSummary = this.mGroupManager.getGroupSummary(topEntry.getSbn())) != null) {
+            topEntry = groupSummary;
+        }
+        ExpandableNotificationRow row = topEntry.getRow();
+        int[] iArr = new int[2];
+        row.getLocationOnScreen(iArr);
+        this.mTouchableRegion.set(iArr[0], 0, iArr[0] + row.getWidth(), this.mHeadsUpInset + row.getIntrinsicHeight());
+        return this.mTouchableRegion;
+    }
+
+    boolean shouldSwallowClick(String str) {
+        HeadsUpManager.HeadsUpEntry headsUpEntry = getHeadsUpEntry(str);
+        return headsUpEntry != null && this.mClock.currentTimeMillis() < headsUpEntry.mPostTime;
+    }
+
+    public void onExpandingFinished() {
+        if (this.mReleaseOnExpandFinish) {
+            releaseAllImmediately();
+            this.mReleaseOnExpandFinish = false;
+        } else {
+            Iterator<NotificationEntry> it = this.mEntriesToRemoveAfterExpand.iterator();
+            while (it.hasNext()) {
+                NotificationEntry next = it.next();
+                if (isAlerting(next.getKey())) {
+                    removeAlertEntry(next.getKey());
+                }
+            }
+        }
+        this.mEntriesToRemoveAfterExpand.clear();
+    }
+
+    public void setTrackingHeadsUp(boolean z) {
+        this.mTrackingHeadsUp = z;
+    }
+
+    void setIsPanelExpanded(boolean z) {
+        if (z != this.mIsExpanded) {
+            this.mIsExpanded = z;
+            if (z) {
+                this.mHeadsUpGoingAway = false;
+            }
+        }
+    }
+
+    @Override // com.android.systemui.statusbar.policy.HeadsUpManager
+    public boolean isEntryAutoHeadsUpped(String str) {
+        HeadsUpEntryPhone headsUpEntryPhone = getHeadsUpEntryPhone(str);
+        if (headsUpEntryPhone == null) {
+            return false;
+        }
+        return headsUpEntryPhone.isAutoHeadsUp();
+    }
+
+    void setHeadsUpGoingAway(boolean z) {
+        if (z != this.mHeadsUpGoingAway) {
+            this.mHeadsUpGoingAway = z;
+            Iterator<OnHeadsUpPhoneListenerChange> it = this.mHeadsUpPhoneListeners.iterator();
+            while (it.hasNext()) {
+                it.next().onHeadsUpGoingAwayStateChanged(z);
+            }
+        }
+    }
+
+    boolean isHeadsUpGoingAway() {
+        return this.mHeadsUpGoingAway;
+    }
+
+    public void setRemoteInputActive(NotificationEntry notificationEntry, boolean z) {
+        HeadsUpEntryPhone headsUpEntryPhone = getHeadsUpEntryPhone(notificationEntry.getKey());
+        if (headsUpEntryPhone == null || headsUpEntryPhone.remoteInputActive == z) {
+            return;
+        }
+        headsUpEntryPhone.remoteInputActive = z;
+        if (z) {
+            headsUpEntryPhone.removeAutoRemovalCallbacks();
+        } else {
+            headsUpEntryPhone.updateEntry(false);
+        }
+    }
+
+    public void setMenuShown(NotificationEntry notificationEntry, boolean z) {
+        HeadsUpManager.HeadsUpEntry headsUpEntry = getHeadsUpEntry(notificationEntry.getKey());
+        if ((headsUpEntry instanceof HeadsUpEntryPhone) && notificationEntry.isRowPinned()) {
+            ((HeadsUpEntryPhone) headsUpEntry).setMenuShownPinned(z);
+        }
+    }
+
+    public void extendHeadsUp() {
+        HeadsUpEntryPhone topHeadsUpEntryPhone = getTopHeadsUpEntryPhone();
+        if (topHeadsUpEntryPhone == null) {
+            return;
+        }
+        topHeadsUpEntryPhone.extendPulse();
+    }
+
+    @Override // com.android.systemui.statusbar.policy.HeadsUpManager
+    public boolean isTrackingHeadsUp() {
+        return this.mTrackingHeadsUp;
+    }
+
+    @Override // com.android.systemui.statusbar.policy.HeadsUpManager
+    public void snooze() {
+        super.snooze();
+        this.mReleaseOnExpandFinish = true;
+    }
+
+    public void addSwipedOutNotification(String str) {
+        this.mSwipedOutKeys.add(str);
+    }
+
+    @Override // com.android.systemui.Dumpable
+    public void dump(FileDescriptor fileDescriptor, PrintWriter printWriter, String[] strArr) {
+        printWriter.println("HeadsUpManagerPhone state:");
+        dumpInternal(fileDescriptor, printWriter, strArr);
+    }
+
+    @Override // com.android.systemui.statusbar.AlertingNotificationManager, com.android.systemui.statusbar.NotificationLifetimeExtender
+    public boolean shouldExtendLifetime(NotificationEntry notificationEntry) {
+        return this.mVisualStabilityManager.isReorderingAllowed() && super.shouldExtendLifetime(notificationEntry);
+    }
+
+    @Override // com.android.systemui.statusbar.notification.VisualStabilityManager.Callback
+    public void onChangeAllowed() {
+        this.mAnimationStateHandler.setHeadsUpGoingAwayAnimationsAllowed(false);
+        Iterator<NotificationEntry> it = this.mEntriesToRemoveWhenReorderingAllowed.iterator();
+        while (it.hasNext()) {
+            NotificationEntry next = it.next();
+            if (isAlerting(next.getKey())) {
+                removeAlertEntry(next.getKey());
+            }
+        }
+        this.mEntriesToRemoveWhenReorderingAllowed.clear();
+        this.mAnimationStateHandler.setHeadsUpGoingAwayAnimationsAllowed(true);
+    }
+
+    /* JADX INFO: Access modifiers changed from: protected */
+    @Override // com.android.systemui.statusbar.policy.HeadsUpManager, com.android.systemui.statusbar.AlertingNotificationManager
+    public HeadsUpManager.HeadsUpEntry createAlertEntry() {
+        return (HeadsUpManager.HeadsUpEntry) this.mEntryPool.acquire();
+    }
+
+    @Override // com.android.systemui.statusbar.policy.HeadsUpManager, com.android.systemui.statusbar.AlertingNotificationManager
+    protected void onAlertEntryRemoved(AlertingNotificationManager.AlertEntry alertEntry) {
+        this.mKeysToRemoveWhenLeavingKeyguard.remove(alertEntry.mEntry.getKey());
+        super.onAlertEntryRemoved(alertEntry);
+        this.mEntryPool.release((HeadsUpEntryPhone) alertEntry);
+    }
+
+    @Override // com.android.systemui.statusbar.policy.HeadsUpManager
+    protected boolean shouldHeadsUpBecomePinned(NotificationEntry notificationEntry) {
+        boolean z = this.mStatusBarState == 0 && !this.mIsExpanded;
+        if (this.mBypassController.getBypassEnabled()) {
+            z |= this.mStatusBarState == 1;
+        }
+        return z || super.shouldHeadsUpBecomePinned(notificationEntry);
+    }
+
+    @Override // com.android.systemui.statusbar.policy.HeadsUpManager
+    protected void dumpInternal(FileDescriptor fileDescriptor, PrintWriter printWriter, String[] strArr) {
+        super.dumpInternal(fileDescriptor, printWriter, strArr);
+        printWriter.print("  mBarState=");
+        printWriter.println(this.mStatusBarState);
+        printWriter.print("  mTouchableRegion=");
+        printWriter.println(this.mTouchableRegion);
+    }
+
+    private HeadsUpEntryPhone getHeadsUpEntryPhone(String str) {
+        return (HeadsUpEntryPhone) this.mAlertEntries.get(str);
+    }
+
+    private HeadsUpEntryPhone getTopHeadsUpEntryPhone() {
+        return (HeadsUpEntryPhone) getTopHeadsUpEntry();
+    }
+
+    @Override // com.android.systemui.statusbar.AlertingNotificationManager
+    protected boolean canRemoveImmediately(String str) {
+        if (this.mSwipedOutKeys.contains(str)) {
+            this.mSwipedOutKeys.remove(str);
+            return true;
+        }
+        HeadsUpEntryPhone headsUpEntryPhone = getHeadsUpEntryPhone(str);
+        return headsUpEntryPhone == null || headsUpEntryPhone != getTopHeadsUpEntryPhone() || super.canRemoveImmediately(str);
+    }
+
+    protected class HeadsUpEntryPhone extends HeadsUpManager.HeadsUpEntry {
+        private boolean extended;
+        private boolean mIsAutoHeadsUp;
+        private boolean mMenuShownPinned;
+
+        protected HeadsUpEntryPhone() {
+            super();
+        }
+
+        @Override // com.android.systemui.statusbar.policy.HeadsUpManager.HeadsUpEntry, com.android.systemui.statusbar.AlertingNotificationManager.AlertEntry
+        public boolean isSticky() {
+            return super.isSticky() || this.mMenuShownPinned;
+        }
+
+        @Override // com.android.systemui.statusbar.AlertingNotificationManager.AlertEntry
+        public void setEntry(final NotificationEntry notificationEntry) {
+            setEntry(notificationEntry, new Runnable() { // from class: com.android.systemui.statusbar.phone.HeadsUpManagerPhone$HeadsUpEntryPhone$$ExternalSyntheticLambda0
+                @Override // java.lang.Runnable
+                public final void run() {
+                    this.f$0.lambda$setEntry$0(notificationEntry);
+                }
+            });
+        }
+
+        /* JADX INFO: Access modifiers changed from: private */
+        public /* synthetic */ void lambda$setEntry$0(NotificationEntry notificationEntry) {
+            if (HeadsUpManagerPhone.this.mVisualStabilityManager.isReorderingAllowed() || notificationEntry.showingPulsing()) {
+                if (HeadsUpManagerPhone.this.mTrackingHeadsUp) {
+                    HeadsUpManagerPhone.this.mEntriesToRemoveAfterExpand.add(notificationEntry);
+                    return;
+                } else if (!this.mIsAutoHeadsUp || HeadsUpManagerPhone.this.mStatusBarState != 1) {
+                    HeadsUpManagerPhone.this.removeAlertEntry(notificationEntry.getKey());
+                    return;
+                } else {
+                    HeadsUpManagerPhone.this.mKeysToRemoveWhenLeavingKeyguard.add(notificationEntry.getKey());
+                    return;
+                }
+            }
+            HeadsUpManagerPhone.this.mEntriesToRemoveWhenReorderingAllowed.add(notificationEntry);
+            HeadsUpManagerPhone.this.mVisualStabilityManager.addReorderingAllowedCallback(HeadsUpManagerPhone.this, false);
+        }
+
+        @Override // com.android.systemui.statusbar.AlertingNotificationManager.AlertEntry
+        public void updateEntry(boolean z) {
+            this.mIsAutoHeadsUp = this.mEntry.isAutoHeadsUp();
+            super.updateEntry(z);
+            if (HeadsUpManagerPhone.this.mEntriesToRemoveAfterExpand.contains(this.mEntry)) {
+                HeadsUpManagerPhone.this.mEntriesToRemoveAfterExpand.remove(this.mEntry);
+            }
+            if (HeadsUpManagerPhone.this.mEntriesToRemoveWhenReorderingAllowed.contains(this.mEntry)) {
+                HeadsUpManagerPhone.this.mEntriesToRemoveWhenReorderingAllowed.remove(this.mEntry);
+            }
+            HeadsUpManagerPhone.this.mKeysToRemoveWhenLeavingKeyguard.remove(this.mEntry.getKey());
+        }
+
+        @Override // com.android.systemui.statusbar.policy.HeadsUpManager.HeadsUpEntry
+        public void setExpanded(boolean z) {
+            if (this.expanded == z) {
+                return;
+            }
+            this.expanded = z;
+            if (z) {
+                removeAutoRemovalCallbacks();
+            } else {
+                updateEntry(false);
+            }
+        }
+
+        public void setMenuShownPinned(boolean z) {
+            if (this.mMenuShownPinned == z) {
+                return;
+            }
+            this.mMenuShownPinned = z;
+            if (z) {
+                removeAutoRemovalCallbacks();
+            } else {
+                updateEntry(false);
+            }
+        }
+
+        @Override // com.android.systemui.statusbar.policy.HeadsUpManager.HeadsUpEntry, com.android.systemui.statusbar.AlertingNotificationManager.AlertEntry
+        public void reset() {
+            super.reset();
+            this.mMenuShownPinned = false;
+            this.extended = false;
+            this.mIsAutoHeadsUp = false;
+        }
+
+        /* JADX INFO: Access modifiers changed from: private */
+        public void extendPulse() {
+            if (this.extended) {
+                return;
+            }
+            this.extended = true;
+            updateEntry(false);
+        }
+
+        /* JADX WARN: Can't rename method to resolve collision */
+        @Override // com.android.systemui.statusbar.policy.HeadsUpManager.HeadsUpEntry, com.android.systemui.statusbar.AlertingNotificationManager.AlertEntry, java.lang.Comparable
+        public int compareTo(AlertingNotificationManager.AlertEntry alertEntry) {
+            boolean zIsAutoHeadsUp = isAutoHeadsUp();
+            boolean zIsAutoHeadsUp2 = ((HeadsUpEntryPhone) alertEntry).isAutoHeadsUp();
+            if (zIsAutoHeadsUp && !zIsAutoHeadsUp2) {
+                return 1;
+            }
+            if (zIsAutoHeadsUp || !zIsAutoHeadsUp2) {
+                return super.compareTo(alertEntry);
+            }
+            return -1;
+        }
+
+        @Override // com.android.systemui.statusbar.policy.HeadsUpManager.HeadsUpEntry, com.android.systemui.statusbar.AlertingNotificationManager.AlertEntry
+        protected long calculateFinishTime() {
+            return this.mPostTime + getDecayDuration() + (this.extended ? HeadsUpManagerPhone.this.mExtensionTime : 0);
+        }
+
+        private int getDecayDuration() {
+            return isAutoHeadsUp() ? getRecommendedHeadsUpTimeoutMs(HeadsUpManagerPhone.this.mAutoHeadsUpNotificationDecay) : getRecommendedHeadsUpTimeoutMs(((AlertingNotificationManager) HeadsUpManagerPhone.this).mAutoDismissNotificationDecay);
+        }
+
+        /* JADX INFO: Access modifiers changed from: private */
+        public boolean isAutoHeadsUp() {
+            return this.mIsAutoHeadsUp;
+        }
+    }
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#242424"/>
+    <padding
+        android:paddingTop="@dimen/ongoing_appops_chip_bg_padding"
+        android:paddingBottom="@dimen/ongoing_appops_chip_bg_padding"/>
+    <corners android:radius="@dimen/ongoing_appops_chip_bg_corner_radius"/>
+</shape>

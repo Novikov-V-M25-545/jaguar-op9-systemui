@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="type_clock_header">
+        <item quantity="one">Je\n^1\n^2</item>
+        <item quantity="few">Jsou\n^1\n^2</item>
+        <item quantity="many">Je\n^1\n^2</item>
+        <item quantity="other">Je\n^1\n^2</item>
+    </plurals>
+</resources>

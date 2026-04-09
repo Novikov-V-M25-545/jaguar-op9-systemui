@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:drawable="@anim/_lock_to_error_rounded__0_res_0x7f010175">
+    <target
+        android:name="_R_G_L_2_G"
+        android:animation="@anim/_lock_to_error_rounded__1_res_0x7f010176"/>
+    <target
+        android:name="_R_G_L_1_G_N_4_T_0"
+        android:animation="@anim/_lock_to_error_rounded__2_res_0x7f010177"/>
+    <target
+        android:name="_R_G_L_0_G_N_4_T_0"
+        android:animation="@anim/_lock_to_error_rounded__3_res_0x7f010178"/>
+    <target
+        android:name="time_group"
+        android:animation="@anim/_lock_to_error_rounded__4_res_0x7f010179"/>
+</animated-vector>

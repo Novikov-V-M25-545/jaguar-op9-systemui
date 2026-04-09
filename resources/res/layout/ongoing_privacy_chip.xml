@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.android.systemui.privacy.OngoingPrivacyChip xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_gravity="end|center_vertical"
+    android:id="@+id/privacy_chip"
+    android:focusable="true"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent">
+    <FrameLayout
+        android:layout_gravity="center_vertical"
+        android:id="@+id/background"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/ongoing_appops_chip_height"
+        android:minWidth="48dp">
+        <LinearLayout
+            android:gravity="center_vertical"
+            android:id="@+id/icons_container"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"/>
+    </FrameLayout>
+</com.android.systemui.privacy.OngoingPrivacyChip>

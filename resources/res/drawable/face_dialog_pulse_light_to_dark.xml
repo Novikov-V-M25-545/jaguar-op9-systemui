@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:drawable="@drawable/_face_dialog_pulse_light_to_dark__0_res_0x7f080176">
+    <target
+        android:name="_R_G_L_0_G_D_0_P_0"
+        android:animation="@drawable/_face_dialog_pulse_light_to_dark__1_res_0x7f080177"/>
+    <target
+        android:name="_R_G_L_0_G_D_1_P_0"
+        android:animation="@drawable/_face_dialog_pulse_light_to_dark__2_res_0x7f080178"/>
+    <target
+        android:name="_R_G_L_0_G_D_2_P_0"
+        android:animation="@drawable/_face_dialog_pulse_light_to_dark__3_res_0x7f080179"/>
+    <target
+        android:name="_R_G_L_0_G_D_3_P_0"
+        android:animation="@drawable/_face_dialog_pulse_light_to_dark__4_res_0x7f08017a"/>
+    <target
+        android:name="_R_G_L_0_G_D_4_P_0"
+        android:animation="@drawable/_face_dialog_pulse_light_to_dark__5_res_0x7f08017b"/>
+    <target
+        android:name="_R_G_L_0_G"
+        android:animation="@drawable/_face_dialog_pulse_light_to_dark__6_res_0x7f08017c"/>
+    <target
+        android:name="time_group"
+        android:animation="@drawable/_face_dialog_pulse_light_to_dark__7_res_0x7f08017d"/>
+</animated-vector>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:ordering="together">
+    <objectAnimator
+        android:interpolator="@drawable/__face_dialog_pulse_light_to_dark__6__0_res_0x7f080074"
+        android:duration="333"
+        android:startOffset="0"
+        android:valueFrom="1.03"
+        android:valueTo="1"
+        android:valueType="floatType"
+        android:propertyName="scaleX"/>
+    <objectAnimator
+        android:interpolator="@drawable/__face_dialog_pulse_light_to_dark__6__1_res_0x7f080075"
+        android:duration="333"
+        android:startOffset="0"
+        android:valueFrom="1.03"
+        android:valueTo="1"
+        android:valueType="floatType"
+        android:propertyName="scaleY"/>
+</set>

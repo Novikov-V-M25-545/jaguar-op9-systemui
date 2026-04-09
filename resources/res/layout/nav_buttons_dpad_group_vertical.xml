@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android" xmlns:systemui="http://schemas.android.com/apk/res-auto">
+    <com.android.systemui.statusbar.policy.KeyButtonView
+        android:layout_gravity="top"
+        android:id="@+id/dpad_left"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/navigation_extra_key_width"
+        android:scaleType="center"
+        android:contentDescription="@string/accessibility_dpad_left"
+        systemui:keyCode="21"/>
+    <com.android.systemui.statusbar.policy.KeyButtonView
+        android:layout_gravity="bottom"
+        android:id="@+id/dpad_right"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/navigation_extra_key_width"
+        android:scaleType="center"
+        android:contentDescription="@string/accessibility_dpad_right"
+        systemui:keyCode="22"/>
+</merge>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="type_clock_header">
+        <item quantity="one">Saat\n^1\n^2</item>
+        <item quantity="other">Saat\n^1\n^2</item>
+    </plurals>
+</resources>

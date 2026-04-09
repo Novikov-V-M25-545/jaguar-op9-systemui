@@ -1,0 +1,37 @@
+package com.android.keyguard;
+
+import android.content.res.ColorStateList;
+import android.view.MotionEvent;
+import com.android.internal.widget.LockPatternUtils;
+
+/* loaded from: classes.dex */
+public interface KeyguardSecurityView {
+    default boolean disallowInterceptTouch(MotionEvent motionEvent) {
+        return false;
+    }
+
+    CharSequence getTitle();
+
+    boolean needsInput();
+
+    void onPause();
+
+    void onResume(int i);
+
+    default void onStartingToHide() {
+    }
+
+    void reset();
+
+    void setKeyguardCallback(KeyguardSecurityCallback keyguardSecurityCallback);
+
+    void setLockPatternUtils(LockPatternUtils lockPatternUtils);
+
+    void showMessage(CharSequence charSequence, ColorStateList colorStateList);
+
+    void showPromptReason(int i);
+
+    void startAppearAnimation();
+
+    boolean startDisappearAnimation(Runnable runnable);
+}

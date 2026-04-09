@@ -1,0 +1,51 @@
+package androidx.appcompat;
+
+/* loaded from: classes.dex */
+public final class R$drawable {
+    public static final int abc_ab_share_pack_mtrl_alpha = 2131231309;
+    public static final int abc_btn_borderless_material = 2131231311;
+    public static final int abc_btn_check_material = 2131231312;
+    public static final int abc_btn_check_material_anim = 2131231313;
+    public static final int abc_btn_colored_material = 2131231316;
+    public static final int abc_btn_default_mtrl_shape = 2131231317;
+    public static final int abc_btn_radio_material = 2131231318;
+    public static final int abc_btn_radio_material_anim = 2131231319;
+    public static final int abc_cab_background_internal_bg = 2131231324;
+    public static final int abc_cab_background_top_material = 2131231325;
+    public static final int abc_cab_background_top_mtrl_alpha = 2131231326;
+    public static final int abc_dialog_material_background = 2131231328;
+    public static final int abc_edit_text_material = 2131231329;
+    public static final int abc_ic_ab_back_material = 2131231330;
+    public static final int abc_ic_commit_search_api_mtrl_alpha = 2131231334;
+    public static final int abc_ic_menu_copy_mtrl_am_alpha = 2131231336;
+    public static final int abc_ic_menu_cut_mtrl_alpha = 2131231337;
+    public static final int abc_ic_menu_paste_mtrl_am_alpha = 2131231339;
+    public static final int abc_ic_menu_selectall_mtrl_alpha = 2131231340;
+    public static final int abc_ic_menu_share_mtrl_alpha = 2131231341;
+    public static final int abc_list_divider_mtrl_alpha = 2131231355;
+    public static final int abc_menu_hardkey_panel_mtrl_mult = 2131231366;
+    public static final int abc_popup_background_mtrl_mult = 2131231367;
+    public static final int abc_ratingbar_indicator_material = 2131231368;
+    public static final int abc_ratingbar_material = 2131231369;
+    public static final int abc_ratingbar_small_material = 2131231370;
+    public static final int abc_seekbar_thumb_material = 2131231376;
+    public static final int abc_seekbar_tick_mark_material = 2131231377;
+    public static final int abc_seekbar_track_material = 2131231378;
+    public static final int abc_spinner_mtrl_am_alpha = 2131231382;
+    public static final int abc_spinner_textfield_background_material = 2131231383;
+    public static final int abc_switch_thumb_material = 2131231384;
+    public static final int abc_switch_track_mtrl_alpha = 2131231385;
+    public static final int abc_tab_indicator_material = 2131231386;
+    public static final int abc_text_cursor_material = 2131231388;
+    public static final int abc_text_select_handle_left_mtrl_dark = 2131231389;
+    public static final int abc_text_select_handle_left_mtrl_light = 2131231390;
+    public static final int abc_text_select_handle_middle_mtrl_dark = 2131231391;
+    public static final int abc_text_select_handle_middle_mtrl_light = 2131231392;
+    public static final int abc_text_select_handle_right_mtrl_dark = 2131231393;
+    public static final int abc_text_select_handle_right_mtrl_light = 2131231394;
+    public static final int abc_textfield_activated_mtrl_alpha = 2131231395;
+    public static final int abc_textfield_default_mtrl_alpha = 2131231396;
+    public static final int abc_textfield_search_activated_mtrl_alpha = 2131231397;
+    public static final int abc_textfield_search_default_mtrl_alpha = 2131231398;
+    public static final int abc_textfield_search_material = 2131231399;
+}

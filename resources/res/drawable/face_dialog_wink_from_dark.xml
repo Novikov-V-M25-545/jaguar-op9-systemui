@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:drawable="@drawable/_face_dialog_wink_from_dark__0_res_0x7f08017e">
+    <target
+        android:name="_R_G_L_0_G_D_2_P_0_G_0_T_0"
+        android:animation="@drawable/_face_dialog_wink_from_dark__1_res_0x7f08017f"/>
+    <target
+        android:name="_R_G_L_0_G"
+        android:animation="@drawable/_face_dialog_wink_from_dark__2_res_0x7f080180"/>
+    <target
+        android:name="_R_G_L_0_G"
+        android:animation="@drawable/_face_dialog_wink_from_dark__3_res_0x7f080181"/>
+    <target
+        android:name="time_group"
+        android:animation="@drawable/_face_dialog_wink_from_dark__4_res_0x7f080182"/>
+</animated-vector>

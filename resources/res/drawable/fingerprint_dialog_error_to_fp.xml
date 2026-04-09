@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:drawable="@drawable/_fingerprint_dialog_error_to_fp__0_res_0x7f080183">
+    <target
+        android:name="_R_G_L_1_G_D_0_P_0"
+        android:animation="@drawable/_fingerprint_dialog_error_to_fp__1_res_0x7f080184"/>
+    <target
+        android:name="_R_G_L_1_G_D_1_P_0"
+        android:animation="@drawable/_fingerprint_dialog_error_to_fp__2_res_0x7f080185"/>
+    <target
+        android:name="_R_G_L_1_G_D_2_P_0"
+        android:animation="@drawable/_fingerprint_dialog_error_to_fp__3_res_0x7f080186"/>
+    <target
+        android:name="_R_G_L_1_G_D_3_P_0"
+        android:animation="@drawable/_fingerprint_dialog_error_to_fp__4_res_0x7f080187"/>
+    <target
+        android:name="_R_G_L_1_G_D_4_P_0"
+        android:animation="@drawable/_fingerprint_dialog_error_to_fp__5_res_0x7f080188"/>
+    <target
+        android:name="_R_G_L_0_G_D_0_P_0_G_0_T_0"
+        android:animation="@drawable/_fingerprint_dialog_error_to_fp__6_res_0x7f080189"/>
+    <target
+        android:name="_R_G_L_0_G_D_1_P_0_G_0_T_0"
+        android:animation="@drawable/_fingerprint_dialog_error_to_fp__7_res_0x7f08018a"/>
+    <target
+        android:name="_R_G_L_0_G_D_2_P_0"
+        android:animation="@drawable/_fingerprint_dialog_error_to_fp__8_res_0x7f08018b"/>
+    <target
+        android:name="time_group"
+        android:animation="@drawable/_fingerprint_dialog_error_to_fp__9_res_0x7f08018c"/>
+</animated-vector>

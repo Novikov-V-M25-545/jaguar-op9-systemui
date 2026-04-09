@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:drawable="@drawable/_face_dialog_idle_static__0_res_0x7f080166">
+    <target
+        android:name="_R_G_L_0_G_D_0_P_0"
+        android:animation="@drawable/_face_dialog_idle_static__1_res_0x7f080167"/>
+    <target
+        android:name="_R_G_L_0_G_D_1_P_0"
+        android:animation="@drawable/_face_dialog_idle_static__2_res_0x7f080168"/>
+    <target
+        android:name="_R_G_L_0_G_D_2_P_0"
+        android:animation="@drawable/_face_dialog_idle_static__3_res_0x7f080169"/>
+    <target
+        android:name="_R_G_L_0_G_D_3_P_0"
+        android:animation="@drawable/_face_dialog_idle_static__4_res_0x7f08016a"/>
+    <target
+        android:name="_R_G_L_0_G_D_4_P_0"
+        android:animation="@drawable/_face_dialog_idle_static__5_res_0x7f08016b"/>
+    <target
+        android:name="_R_G_L_0_G"
+        android:animation="@drawable/_face_dialog_idle_static__6_res_0x7f08016c"/>
+    <target
+        android:name="time_group"
+        android:animation="@drawable/_face_dialog_idle_static__7_res_0x7f08016d"/>
+</animated-vector>

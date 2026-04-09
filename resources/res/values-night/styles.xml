@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.QS.Status" parent="@style/TextAppearance.QS.TileLabel.Secondary">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:fontFamily">@android:string/common_name</item>
+    </style>
+    <style name="Theme.AppCompat.DayNight" parent="@style/Theme.AppCompat">
+    </style>
+    <style name="Theme.AppCompat.DayNight.DarkActionBar" parent="@style/Theme.AppCompat">
+    </style>
+    <style name="Theme.AppCompat.DayNight.Dialog" parent="@style/Theme.AppCompat.Dialog">
+    </style>
+    <style name="Theme.AppCompat.DayNight.Dialog.Alert" parent="@style/Theme.AppCompat.Dialog.Alert">
+    </style>
+    <style name="Theme.AppCompat.DayNight.Dialog.MinWidth" parent="@style/Theme.AppCompat.Dialog.MinWidth">
+    </style>
+    <style name="Theme.AppCompat.DayNight.DialogWhenLarge" parent="@style/Theme.AppCompat.DialogWhenLarge">
+    </style>
+    <style name="Theme.AppCompat.DayNight.NoActionBar" parent="@style/Theme.AppCompat.NoActionBar">
+    </style>
+    <style name="Theme.SystemUI.Dialog" parent="@android:style/Theme.DeviceDefault.Dialog">
+    </style>
+    <style name="Theme.SystemUI.Dialog.Alert" parent="@android:style/Theme.DeviceDefault.Dialog.Alert">
+    </style>
+    <style name="Theme.SystemUI.Dialog.GlobalActions" parent="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+        <item name="android:windowIsFloating">true</item>
+    </style>
+    <style name="ThemeOverlay.AppCompat.DayNight" parent="@style/ThemeOverlay.AppCompat.Dark">
+    </style>
+    <style name="global_actions_base" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:panelColorBackground">@android:color/car_tint_light</item>
+        <item name="android:colorControlNormal">@android:color/kg_widget_pager_gradient</item>
+        <item name="android:colorPrimary">@android:color/car_tint_light</item>
+        <item name="android:colorPrimaryDark">@android:color/car_teal_600</item>
+        <item name="android:colorAccent">@android:color/system_neutral2_100</item>
+        <item name="android:colorBackgroundFloating">@android:color/car_red_500a</item>
+        <item name="android:colorSecondary">@android:color/group_button_dialog_pressed_holo_dark</item>
+    </style>
+    <style name="qs_base" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:panelColorBackground">@android:color/car_tint_light</item>
+        <item name="android:colorControlNormal">@android:color/kg_widget_pager_gradient</item>
+        <item name="android:colorPrimary">@android:color/car_tint_light</item>
+        <item name="android:colorPrimaryDark">@android:color/car_teal_600</item>
+        <item name="android:colorAccent">@android:color/system_neutral2_100</item>
+        <item name="android:colorBackgroundFloating">@android:color/car_red_500a</item>
+        <item name="android:colorSecondary">@android:color/group_button_dialog_pressed_holo_dark</item>
+    </style>
+</resources>

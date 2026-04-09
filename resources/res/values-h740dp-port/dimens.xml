@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="qs_customize_header_min_height">36dp</dimen>
+    <dimen name="qs_tile_height">106dp</dimen>
+    <dimen name="qs_tile_margin_top">8dp</dimen>
+    <dimen name="qs_tile_margin_vertical">14dp</dimen>
+</resources>

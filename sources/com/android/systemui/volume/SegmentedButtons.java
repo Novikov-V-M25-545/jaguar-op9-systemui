@@ -1,0 +1,116 @@
+package com.android.systemui.volume;
+
+import android.content.Context;
+import android.graphics.Typeface;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import com.android.systemui.R;
+import com.android.systemui.volume.Interaction;
+import java.util.Objects;
+
+/* loaded from: classes.dex */
+public class SegmentedButtons extends LinearLayout {
+    private Callback mCallback;
+    private final View.OnClickListener mClick;
+    private final ConfigurableTexts mConfigurableTexts;
+    private final Context mContext;
+    protected final LayoutInflater mInflater;
+    protected Object mSelectedValue;
+    private static final int LABEL_RES_KEY = R.id.label;
+    private static final Typeface REGULAR = Typeface.create("sans-serif", 0);
+    private static final Typeface MEDIUM = Typeface.create("sans-serif-medium", 0);
+
+    public interface Callback extends Interaction.Callback {
+        void onSelected(Object obj, boolean z);
+    }
+
+    protected void setSelectedStyle(TextView textView, boolean z) {
+    }
+
+    public SegmentedButtons(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
+        this.mClick = new View.OnClickListener() { // from class: com.android.systemui.volume.SegmentedButtons.2
+            @Override // android.view.View.OnClickListener
+            public void onClick(View view) {
+                SegmentedButtons.this.setSelectedValue(view.getTag(), true);
+            }
+        };
+        this.mContext = context;
+        this.mInflater = LayoutInflater.from(context);
+        setOrientation(0);
+        this.mConfigurableTexts = new ConfigurableTexts(context);
+    }
+
+    public void setCallback(Callback callback) {
+        this.mCallback = callback;
+    }
+
+    public Object getSelectedValue() {
+        return this.mSelectedValue;
+    }
+
+    public void setSelectedValue(Object obj, boolean z) {
+        if (Objects.equals(obj, this.mSelectedValue)) {
+            return;
+        }
+        this.mSelectedValue = obj;
+        for (int i = 0; i < getChildCount(); i++) {
+            TextView textView = (TextView) getChildAt(i);
+            boolean zEquals = Objects.equals(this.mSelectedValue, textView.getTag());
+            textView.setSelected(zEquals);
+            setSelectedStyle(textView, zEquals);
+        }
+        fireOnSelected(z);
+    }
+
+    public Button inflateButton() {
+        return (Button) this.mInflater.inflate(R.layout.segmented_button, (ViewGroup) this, false);
+    }
+
+    public void addButton(int i, int i2, Object obj) {
+        Button buttonInflateButton = inflateButton();
+        buttonInflateButton.setTag(LABEL_RES_KEY, Integer.valueOf(i));
+        buttonInflateButton.setText(i);
+        buttonInflateButton.setContentDescription(getResources().getString(i2));
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) buttonInflateButton.getLayoutParams();
+        if (getChildCount() == 0) {
+            layoutParams.rightMargin = 0;
+            layoutParams.leftMargin = 0;
+        }
+        buttonInflateButton.setLayoutParams(layoutParams);
+        addView(buttonInflateButton);
+        buttonInflateButton.setTag(obj);
+        buttonInflateButton.setOnClickListener(this.mClick);
+        Interaction.register(buttonInflateButton, new Interaction.Callback() { // from class: com.android.systemui.volume.SegmentedButtons.1
+            @Override // com.android.systemui.volume.Interaction.Callback
+            public void onInteraction() {
+                SegmentedButtons.this.fireInteraction();
+            }
+        });
+        this.mConfigurableTexts.add(buttonInflateButton, i);
+    }
+
+    public void update() {
+        this.mConfigurableTexts.update();
+    }
+
+    private void fireOnSelected(boolean z) {
+        Callback callback = this.mCallback;
+        if (callback != null) {
+            callback.onSelected(this.mSelectedValue, z);
+        }
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public void fireInteraction() {
+        Callback callback = this.mCallback;
+        if (callback != null) {
+            callback.onInteraction();
+        }
+    }
+}
